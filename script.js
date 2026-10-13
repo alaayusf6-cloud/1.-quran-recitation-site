@@ -34,7 +34,7 @@
         <span class="surah-number">${surah.number}</span>
         <span>
           <strong>سورة ${surah.name}</strong>
-          <small>${surah.videoUrl ? "مشاهدة التلاوة ورفع التسجيل" : "جاهزة لإضافة رابط الفيديو"}</small>
+          <small>${(config.youtubePlaylistId || surah.videoUrl) ? "مشاهدة التلاوة ورفع التسجيل" : "جاهزة لإضافة رابط الفيديو"}</small>
         </span>
       </button>
     `).join("");
@@ -73,6 +73,82 @@
     }
   }
 
+  // تحميل YouTube IFrame API مرة واحدة فقط.
+  let youtubeApiPromise;
+  function ensureYouTubeApi() {
+    if (window.YT && window.YT.Player) return Promise.resolve();
+    if (youtubeApiPromise) return youtubeApiPromise;
+
+    youtubeApiPromise = new Promise((resolve, reject) => {
+      const previousReady = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => {
+        if (typeof previousReady === "function") previousReady();
+        resolve();
+      };
+
+      const existing = document.querySelector('script[src="https://www.youtube.com/iframe_api"]');
+      if (!existing) {
+        const tag = document.createElement("script");
+        tag.src = "https://www.youtube.com/iframe_api";
+        tag.async = true;
+        tag.onerror = () => reject(new Error("تعذر تحميل مشغل YouTube."));
+        document.head.appendChild(tag);
+      }
+    });
+
+    return youtubeApiPromise;
+  }
+
+  async function showPlaylistSurah(surah) {
+    const playlistId = String(config.youtubePlaylistId || "").trim();
+    if (!playlistId) return false;
+
+    // ترتيب YouTube يبدأ من 0، لذلك الفاتحة = 0 والبقرة = 1 ... الناس = 113.
+    const playlistIndex = Math.max(0, Number(surah.number) - 1);
+    videoArea.innerHTML = '<div class="no-video"><strong>جاري تحميل التلاوة...</strong></div>';
+
+    try {
+      await ensureYouTubeApi();
+      if (!modal.classList.contains("open")) return true;
+
+      videoArea.innerHTML = '<div id="youtubePlayer"></div>';
+      new YT.Player("youtubePlayer", {
+        width: "100%",
+        height: "100%",
+        playerVars: {
+          playsinline: 1,
+          rel: 0
+        },
+        events: {
+          onReady(event) {
+            event.target.cuePlaylist({
+              listType: "playlist",
+              list: playlistId,
+              index: playlistIndex,
+              startSeconds: 0
+            });
+          },
+          onError() {
+            videoArea.innerHTML = `
+              <div class="no-video">
+                <strong>تعذر تشغيل سورة ${surah.name}</strong>
+                <span>تأكدي أن الـ Playlist عامة أو غير مدرجة وأن ترتيب السور صحيح.</span>
+              </div>`;
+          }
+        }
+      });
+      return true;
+    } catch (error) {
+      console.error(error);
+      videoArea.innerHTML = `
+        <div class="no-video">
+          <strong>تعذر تحميل مشغل YouTube</strong>
+          <span>تحققي من اتصال الإنترنت وحاولي مرة أخرى.</span>
+        </div>`;
+      return true;
+    }
+  }
+
   function openSurah(surah) {
     selectedSurah.value = surah.name;
     modalTitle.textContent = `سورة ${surah.name}`;
@@ -80,6 +156,15 @@
     form.reset();
     selectedSurah.value = surah.name;
     resetFormStatus();
+
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+
+    if (config.youtubePlaylistId) {
+      showPlaylistSurah(surah);
+      return;
+    }
 
     const embed = youtubeEmbedUrl(surah.videoUrl);
     if (embed) {
@@ -92,13 +177,9 @@
       videoArea.innerHTML = `
         <div class="no-video">
           <strong>لم يُضف رابط فيديو سورة ${surah.name} بعد</strong>
-          <span>ضع الرابط في ملف <code>surahs.js</code> أمام سورة ${surah.name}.</span>
+          <span>ضعي Playlist في ملف <code>config.js</code> أو رابطًا منفردًا في <code>surahs.js</code>.</span>
         </div>`;
     }
-
-    modal.classList.add("open");
-    modal.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
   }
 
   function closeModal() {
