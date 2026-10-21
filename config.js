@@ -2,8 +2,10 @@
 // إعدادات الموقع العامة
 // ===============================
 window.SITE_CONFIG = {
-  schoolName: "مدرستي",
-  siteTitle: "منصة التلاوة الصحيحة",
+  schoolName: "عرفة الاساسية المختلطة",
+  admin: "المعلمة: سهام الشباطات",
+  admin: "المعلمة: شريفة السوالقة",
+  siteTitle: "منصة رتّــــل",
 
   // Playlist القرآن الكريم: يجب أن تكون مرتبة من الفاتحة (1) إلى الناس (114).
   youtubePlaylistId: "PLcEPRvlLG_JtpX57eP3O7K2hONro4uV0z",
