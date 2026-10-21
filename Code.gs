@@ -1,13 +1,3 @@
-/**
- * Google Apps Script backend
- * ==========================
- * 1) أنشئ مجلدًا رئيسيًا في Google Drive لتسليمات الطالبات.
- * 2) انسخ ID المجلد من رابطه وضعه أدناه.
- * 3) Deploy > New deployment > Web app
- * 4) Execute as: Me
- * 5) Who has access: Anyone (أو الإعداد المناسب لحساب المدرسة)
- * 6) انسخ رابط /exec وضعه في config.js داخل الموقع.
- */
 
 const ROOT_FOLDER_ID = 'PUT_YOUR_GOOGLE_DRIVE_FOLDER_ID_HERE';
 const MAX_FILE_SIZE_MB = 25;
