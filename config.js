@@ -3,8 +3,6 @@
 // ===============================
 window.SITE_CONFIG = {
   schoolName: "عرفة الاساسية المختلطة",
-  schoolName: "المعلمة: سهام الشباطات",
-  schoolName: "المعلمة: شريفة السوالقة",
   siteTitle: "منصة رتّــــل",
 
   // Playlist القرآن الكريم: يجب أن تكون مرتبة من الفاتحة (1) إلى الناس (114).
@@ -15,5 +13,5 @@ window.SITE_CONFIG = {
 appsScriptUrl: "https://script.google.com/macros/s/AKfycbyxMtu5QHvaFaBfdNOtULOJGPAU6ePxKfLGCXavwoiEvs-3JTpd3CAku80rh0bDTv0t/exec",
   
   // الحد الأقصى لحجم الملف بالميغابايت (يفضل إبقاؤه صغيرًا لأن الملف يمر عبر Apps Script)
-  maxFileSizeMB: 25
+  maxFileSizeMB: 50
 };
